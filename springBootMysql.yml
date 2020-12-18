@@ -52,7 +52,7 @@ metadata:
    labels:
       type: db
 spec:
-    replicas: 2
+    replicas: 1 
     selector:
       matchLabels:
         type: db
@@ -63,7 +63,7 @@ spec:
           type: db
       spec:
         containers:
-        - image: mysql-standalone1
+        - image: mysql
           name: my-db
           ports:
           - name: my-db
