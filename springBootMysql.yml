@@ -1,78 +1,81 @@
 apiVersion: apps/v1
 kind: Deployment
-metadata: 
-  labels: 
-    app: springboot
-  name: spring-controller
+metadata:
+   name: spr-mysql
+   annotations:
+      dependencies: "git 2.0,  jdkv8.0, springboot"
+      on-call: "Shwetha Cell:7829181823 email: guptha.shwetha@gmail.com"
+   labels:
+      type: back-end
 spec:
-  selector:
-    matchLabels:                    # This deployment applies to the Pods matching the specified labels
-      app: springboot
-      tier: springboot
-  strategy:
-    type: Recreate
-  replicas: 1
-  template: 
-    metadata: 
-      labels:
-        app: springboot
-    spec:
-      containers:
-      - image: shwetha313/spring-boot-mysql
-        name: springboot
-        ports:
-        - name: springboot
-          containerPort: 8080
+    replicas: 4
+    selector:
+      matchLabels:
+        type: back-end
+    template:
+      metadata:
+        name: spr-mysql
+        annotations:
+          dependencies: "git 2.0,  jdkv8.0, springboot"
+          on-call: "Shwetha Cell:7829181823 email: guptha.shwetha@gmail.com"
+        labels:
+          type: back-end
+      spec:
+        containers:
+          - name: sp-com
+            image: shwetha313/spring-new-code
+            ports:
+               - name: sp-com
+                 containerPort: 8080
+
 ---
  # Node Port Service
 apiVersion: v1
 kind: Service
 metadata:
   labels:
-    app: springboot
-  name: springboot
+    app: spr-mysql
+  name: spr-mysql
 spec:
   type: NodePort
   ports:
   - port: 8080
     targetPort: 8080
   selector:
-    name: springboot
+    name: spr-mysql
 ---
 # mysql host
 apiVersion: apps/v1
 kind: Deployment
-metatdata:
-  labels:
-    app: mysql
-  name: mysql-controller
+metadata:
+   name: my-db
+   labels:
+      type: db
 spec:
-  selector:
-    matchLabels:                    # This deployment applies to the Pods matching the specified labels
-      app: mysql
-      tier: mysql
-  strategy:
-    type: Recreate
-  replicas: 1
-  template:
-    metadata:
-      labels:
-        app: mysql
-    spec:
-      containers:
-      - image: mysql-standalone1
-        name: mysql
-        ports:
-        - name: mysql
-          containerPort: 3306
-          hostPort: 3306
-        volumeMounts:
+    replicas: 2
+    selector:
+      matchLabels:
+        type: db
+    template:
+      metadata:
+        name: my-db
+        labels:
+          type: db
+      spec:
+        containers:
+        - image: mysql-standalone1
+          name: my-db
+          ports:
+          - name: my-db
+            containerPort: 3306
+            hostPort: 3306
+          volumeMounts:
           - name: mysql-persistent-storage
             mountPath: /data/db
-      volumes:
+        volumes:
           - name: mysql-persistent-storage
             hostPath:
-              path: /tmp/dbbackup          
+              path: /tmp/dbbackup         
 ---
 # mysql node port
 apiVersion: v1
@@ -89,6 +92,5 @@ spec:
   selector:
     app: mysql
     name: mysql
-    tier: mysql        
-  clusterIP: none  
+    tier: mysql          
                             
