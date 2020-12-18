@@ -2,14 +2,20 @@ apiVersion: apps/v1
 kind: Deployment
 metadata: 
   labels: 
-    name: springboot
+    app: springboot
   name: spring-controller
 spec:
+  selector:
+    matchLabels:                    # This deployment applies to the Pods matching the specified labels
+      app: springboot
+      tier: springboot
+  strategy:
+    type: Recreate
   replicas: 1
   template: 
     metadata: 
       labels:
-        name: springboot
+        app: springboot
     spec:
       containers:
       - image: shwetha313/myspringboot
@@ -23,7 +29,7 @@ apiVersion: v1
 kind: Service
 metadata:
   labels:
-    name: springboot
+    app: springboot
   name: springboot
 spec:
   type: NodePort
@@ -38,14 +44,20 @@ apiVersion: apps/v1
 kind: Deployment
 metatdata:
   labels:
-    name: mysql
+    app: mysql
   name: mysql-controller
 spec:
+  selector:
+    matchLabels:                    # This deployment applies to the Pods matching the specified labels
+      app: mysql
+      tier: mysql
+  strategy:
+    type: Recreate
   replicas: 1
   template:
     metadata:
       labels:
-        name: mysql
+        app: mysql
     spec:
       containers:
       - image: mysql-standalone1
@@ -54,10 +66,10 @@ spec:
         - name: mysql
           containerPort: 3306
           hostPort: 3306
-          volumeMounts:
+        volumeMounts:
           - name: mysql-persistent-storage
             mountPath: /data/db
-          volumes:
+      volumes:
           - name: mysql-persistent-storage
             hostPath:
               path: /tmp/dbbackup          
@@ -67,7 +79,7 @@ apiVersion: v1
 kind: Service
 metadata: 
   labels: 
-    name: mysql
+    app: mysql
   name: mysql
 spec:
   type: ClusterIP
@@ -75,6 +87,8 @@ spec:
     - port: 3306
       targetPort: 3306
   selector:
-    name: mysql        
-    
+    app: mysql
+    name: mysql
+    tier: mysql        
+  clusterIP: none  
                             
