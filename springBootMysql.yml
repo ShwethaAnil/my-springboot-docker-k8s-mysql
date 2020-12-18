@@ -18,7 +18,7 @@ spec:
         app: springboot
     spec:
       containers:
-      - image: shwetha313/myspringboot
+      - image: shwetha313/spring-boot-mysql
         name: springboot
         ports:
         - name: springboot
